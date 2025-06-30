@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:offline_menu_translator/ui/translator_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,12 +11,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Offline Menu Translator',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const TranslatorScreen(),
+      title: 'Whatever we want it to be',
+      //Add theme: Jakub might want to mess around here lol
+      home: SizedBox.shrink()
     );
   }
 }
