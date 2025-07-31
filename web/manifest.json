@@ -1,6 +1,6 @@
 {
-    "name": "offline_menu_translator",
-    "short_name": "offline_menu_translator",
+    "name": "emergency_buddy",
+    "short_name": "emergency_buddy",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
