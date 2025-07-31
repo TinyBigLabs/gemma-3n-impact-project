@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:emergency_buddy/presentation/pages/landing_page.dart';
+import 'injection_container.dart' as di;
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize any necessary services here, like SharedPreferences or others.
+  await di.init();
   runApp(const MyApp());
 }
 
@@ -11,9 +16,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Whatever we want it to be',
-      //Add theme: Jakub might want to mess around here lol
-      home: SizedBox.shrink()
+      title: 'Emergency Buddy',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: LandingPage(title: 'Emergency Buddy'),
     );
   }
 }
