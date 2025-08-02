@@ -1,10 +1,13 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 import 'package:emergency_buddy/core/location/gps_location.dart';
-import 'package:emergency_buddy/presentation/pages/home_page_mobile.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:emergency_buddy/presentation/pages/home_page_web.dart';
+import 'package:emergency_buddy/presentation/pages/home_page_mobile.dart';
+import 'package:emergency_buddy/presentation/widgets/first_aid/blocs/first_aid_cubit.dart';
+
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key, required this.title});
@@ -18,8 +21,8 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   String _language = ui.window.locale.languageCode;
   String _location = "Fetching location...";
+  late Future<void> _loadDataFuture;
 
-  // Initialize the GPSLocation instance and fetch the location
   Future<void> setLocation() async {
     try {
       _location = await GPSLocation().getLocation();
@@ -33,27 +36,36 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     setLocation();
+    // Initialize the future to load data
+    _loadDataFuture = context.read<FirstAidCubit>().loadCategories();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: kIsWeb
-            ? HomePageWeb(location: _location, language: _language)
-            : HomePageMobile(location: _location, language: _language),
-      ),
+        child:  FutureBuilder<void>(
+              future: _loadDataFuture,
+              builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Show a loading indicator while data is being loaded
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  // Show an error message if loading fails
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  // Show the appropriate home page once data is loaded
+                  return kIsWeb
+                      ? HomePageWeb(location: _location, language: _language)
+                      : HomePageMobile(location: _location, language: _language);
+                }
+              },
+            ),
+          ),
     );
   }
 }

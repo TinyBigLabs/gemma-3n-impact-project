@@ -26,6 +26,10 @@ dependencies:
   connectivity_plus: ^6.1.4
   network_info_plus: ^6.1.4
   geocoding: ^4.0.0
+  flutter_bloc: ^9.1.1
+  provider: ^6.1.5
+  freezed: ^3.2.0
+  freezed_annotation: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -33,9 +37,17 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   injectable_generator: ^2.5.1
   build_runner: ^2.6.0
+  json_serializable: ^6.10.0
 
 flutter:
   uses-material-design: true
 
   assets:
-    - assets/gemma.png
+    - assets/gemma/
+    - assets/data/first_aid_categories.json
+    - assets/data/listing.json
+    - assets/data/pdf.json
+    - assets/pdf/
+
+first_aid_categories:
+  dart:
