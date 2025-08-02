@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:emergency_buddy/core/location/gps_location.dart';
+import 'package:emergency_buddy/domain/entities/first_aid_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,23 +20,11 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  String _language = ui.window.locale.languageCode;
-  String _location = "Fetching location...";
   late Future<void> _loadDataFuture;
-
-  Future<void> setLocation() async {
-    try {
-      _location = await GPSLocation().getLocation();
-      setState(() {});
-    } catch (e) {
-      _location = "Failed to fetch location: $e";
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    setLocation();
     // Initialize the future to load data
     _loadDataFuture = context.read<FirstAidCubit>().loadCategories();
   }
@@ -60,8 +49,8 @@ class _LandingPageState extends State<LandingPage> {
                 } else {
                   // Show the appropriate home page once data is loaded
                   return kIsWeb
-                      ? HomePageWeb(location: _location, language: _language)
-                      : HomePageMobile(location: _location, language: _language);
+                      ? HomePageWeb()
+                      : HomePageMobile();
                 }
               },
             ),
