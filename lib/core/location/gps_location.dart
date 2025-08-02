@@ -31,7 +31,7 @@ class GPSLocation {
     final position = await Geolocator.getCurrentPosition();
 
     //On Web: Detecting Geocoding not available, ignoring
-    if(kIsWeb){
+    if (kIsWeb) {
       return "Lat: ${position.latitude}, Long: ${position.longitude}";
     }
 
