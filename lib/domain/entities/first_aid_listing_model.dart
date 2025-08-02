@@ -16,13 +16,25 @@ abstract class FirstAidListing with _$FirstAidListing {
 
   factory FirstAidListing.fromJson(Map<String, dynamic> json) =>
       _$FirstAidListingFromJson(json);
+
+  factory FirstAidListing.empty() {
+    return FirstAidListing(
+      listingId: '',
+      firstAidId: '',
+      pdfId: '',
+      title: '',
+      page: 0,
+      defaultValue: 0,
+    );
+  }
 }
 
 // First Aid Listings Response Model
 @freezed
 abstract class FirstAidListingsResponse with _$FirstAidListingsResponse {
   const factory FirstAidListingsResponse({
-    @JsonKey(name: 'first_aid_listings') required List<FirstAidListing> firstAidListings,
+    @JsonKey(name: 'first_aid_listings')
+    required List<FirstAidListing> firstAidListings,
   }) = _FirstAidListingsResponse;
 
   factory FirstAidListingsResponse.fromJson(Map<String, dynamic> json) =>

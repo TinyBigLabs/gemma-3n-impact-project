@@ -1,53 +1,68 @@
+import 'package:emergency_buddy/core/utils/constants.dart';
 import 'package:emergency_buddy/presentation/widgets/first_aid/blocs/first_aid_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
 class FirstAidListing extends StatelessWidget {
-
-  const FirstAidListing({super.key});
+  final String category;
+  const FirstAidListing({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      constraints: const BoxConstraints(maxHeight: 400),
-      child: BlocBuilder<FirstAidCubit, FirstAidState>(
-        builder: (context, state) {
-          if (state is FirstAidLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is FirstAidAllCategoriesLoaded) {
-            return ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: state.categories.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final category = state.categories[index];
-                return ListTile(
-                  title: Text(
-                    category.title,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
+    return BlocBuilder<FirstAidCubit, FirstAidState>(builder: (context, state) {
+      if (state is FirstAidLoading) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (state is FirstAidAllCategoriesLoaded) {
+        final filteredCategories = category == 'Life Threatening'
+            ? state.lifeThreateningCategories
+                .map((e) => e.promptTag)
+                .toSet()
+                .toList()
+            : state.emergencyCategories
+                .map((e) => e.promptTag)
+                .toSet()
+                .toList();
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final firstAid = filteredCategories[index];
+              return Container(
+                margin: EdgeInsets.symmetric(
+                    horizontal: UIConstants.mediumSize,
+                    vertical: UIConstants.smallSize),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  subtitle: Text(
-                    'ID: ${category.listingId}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
+                  child: ExpansionTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Theme.of(context).secondaryHeaderColor,
+                      child: Icon(Icons.medical_services,
+                          color: Colors.black,
+                          size: UIConstants.iconSizeListing),
                     ),
+                    title: Text(firstAid,
+                        style: Theme.of(context).textTheme.headlineSmall),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(UIConstants.mediumSize),
+                        child: Text(firstAid,
+                            style: Theme.of(context).textTheme.bodyLarge),
+                      ),
+                    ],
                   ),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    // TODO: Navigate to category detail
-                    debugPrint('Tapped on category: ${category.title}');
-                  },
-                );
-              },
-            );
-          } else if (state is FirstAidError) {
-            return Center(child: Text('Error: ${state.errorMessage}'));
-          } else {
-            return const Center(child: Text('No categories available.'));
-          }
-        },
-      ),
-    );
+                ),
+              );
+            },
+            childCount: filteredCategories.length,
+          ),
+        );
+      } else if (state is FirstAidError) {
+        return Center(child: Text('Error: ${state.errorMessage}'));
+      } else {
+        return const Center(child: Text('No categories available.'));
+      }
+    });
   }
 }

@@ -1,6 +1,7 @@
 // Repository for managing first aid data
 import 'dart:convert';
 
+import 'package:emergency_buddy/domain/entities/first_aid_home_page_model.dart';
 import 'package:emergency_buddy/domain/entities/first_aid_listing_model.dart';
 import 'package:emergency_buddy/domain/entities/first_aid_model.dart';
 import 'package:emergency_buddy/domain/entities/pdf_reference_model.dart';
@@ -9,9 +10,7 @@ import 'package:flutter/services.dart';
 
 abstract class FirstAidRepository {
   /// Get all first aid procedures
-  Future<List<FirstAidData>> getFirstAidDataList();
-  Future<List<PdfReference>> getAllPdfs();
-  Future<List<FirstAidListing>> getAllListing();
+  Future<List<FirstAidHomePageData>> getHomePageListing();
 }
 
 /// Exception thrown when repository operations fail
@@ -22,14 +21,15 @@ class FirstAidRepositoryException implements Exception {
   const FirstAidRepositoryException(this.message, [this.cause]);
 
   @override
-  String toString() => 'FirstAidRepositoryException: $message${cause != null ? ' (Cause: $cause)' : ''}';
+  String toString() =>
+      'FirstAidRepositoryException: $message${cause != null ? ' (Cause: $cause)' : ''}';
 }
 
-class FirstAidRepositoryImpl  implements FirstAidRepository {
+class FirstAidRepositoryImpl implements FirstAidRepository {
   // Private fields for caching
   List<FirstAidData> _firstAidDataList = [];
-  List<PdfReference> _pdfList= [];
-  List<FirstAidListing> _firstAidMainListing=[];
+  List<PdfReference> _pdfList = [];
+  List<FirstAidListing> _firstAidMainListing = [];
 
   /// Simple init function to load all data
   Future<void> loadData({
@@ -37,15 +37,6 @@ class FirstAidRepositoryImpl  implements FirstAidRepository {
     String pdfReferencesAssetPath = 'assets/data/pdf.json',
     String listingsAssetPath = 'assets/data/listing.json',
   }) async {
-
-    if( _firstAidDataList.isNotEmpty &&
-        _pdfList.isNotEmpty &&
-        _firstAidMainListing.isNotEmpty) {
-      // Data already loaded, no need to reload
-      debugPrint('Data already loaded, skipping loadData()');
-      return;
-    }
-
     debugPrint('Data not loaded yet, loading from assets...');
 
     debugPrint('Loading data from assets...');
@@ -57,9 +48,10 @@ class FirstAidRepositoryImpl  implements FirstAidRepository {
           .toList();
 
       // Load PDF references
-      final pdfReferencesJson = await rootBundle.loadString(
-          pdfReferencesAssetPath);
-      final pdfReferencesArray = json.decode(pdfReferencesJson) as List<dynamic>;
+      final pdfReferencesJson =
+          await rootBundle.loadString(pdfReferencesAssetPath);
+      final pdfReferencesArray =
+          json.decode(pdfReferencesJson) as List<dynamic>;
       _pdfList = pdfReferencesArray
           .map((item) => PdfReference.fromJson(item as Map<String, dynamic>))
           .toList();
@@ -81,26 +73,44 @@ class FirstAidRepositoryImpl  implements FirstAidRepository {
   }
 
   @override
-  Future<List<FirstAidData>> getFirstAidDataList() async{
-    if (_firstAidDataList.isEmpty) {
-        await loadData();
-    }
-    return _firstAidDataList;
-  }
-
-  @override
-  Future<List<PdfReference>> getAllPdfs() async{
-    if (_pdfList.isEmpty) {
+  Future<List<FirstAidHomePageData>> getHomePageListing() async {
+    // Ensure data is loaded
+    if (_firstAidDataList.isEmpty &&
+        _pdfList.isEmpty &&
+        _firstAidMainListing.isEmpty) {
       await loadData();
     }
-    return _pdfList;
-  }
 
-  @override
-  Future<List<FirstAidListing>> getAllListing() async{
-    if (_firstAidMainListing.isEmpty) {
-      await loadData();
-    }
-    return _firstAidMainListing;
+    // Combine data from all three lists
+    final combinedData = _firstAidMainListing
+        .map((listing) {
+          final firstAidData = _firstAidDataList.firstWhere(
+            (data) =>
+                data.firstAidId == listing.firstAidId && data.language == 'en',
+            // Assuming 'en' is the default language
+            orElse: () => FirstAidData.empty(),
+          );
+
+          return FirstAidHomePageData(
+            category: firstAidData.category,
+            promptTag: firstAidData.promptTag,
+            ageGroup: firstAidData.ageGroup,
+            pdf: _pdfList
+                .firstWhere(
+                  (pdf) => pdf.pdfId == listing.pdfId,
+                  orElse: () => PdfReference.empty(),
+                )
+                .pdfFilename,
+            sort: firstAidData.sort,
+          );
+        })
+        .toSet()
+        .toList();
+
+    // sort by sort
+    final filteredAndSortedData = combinedData.toList()
+      ..sort((a, b) => a.sort.compareTo(b.sort));
+
+    return filteredAndSortedData;
   }
 }

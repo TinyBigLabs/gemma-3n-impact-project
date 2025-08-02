@@ -18,6 +18,17 @@ abstract class FirstAidData with _$FirstAidData {
 
   factory FirstAidData.fromJson(Map<String, dynamic> json) =>
       _$FirstAidDataFromJson(json);
+
+  factory FirstAidData.empty() {
+    return FirstAidData(
+      firstAidId: '',
+      promptTag: '',
+      ageGroup: '',
+      category: '',
+      language: 'en',
+      sort: 0,
+    );
+  }
 }
 
 // First Aid Data Response Model (contains the array)

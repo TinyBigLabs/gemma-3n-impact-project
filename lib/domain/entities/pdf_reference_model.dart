@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'pdf_reference_model.freezed.dart';
 part 'pdf_reference_model.g.dart';
+
 // PDF Reference Model
 @freezed
 abstract class PdfReference with _$PdfReference {
@@ -12,6 +13,13 @@ abstract class PdfReference with _$PdfReference {
 
   factory PdfReference.fromJson(Map<String, dynamic> json) =>
       _$PdfReferenceFromJson(json);
+
+  factory PdfReference.empty() {
+    return PdfReference(
+      pdfId: '',
+      pdfFilename: '',
+    );
+  }
 }
 
 // PDF References Response Model
