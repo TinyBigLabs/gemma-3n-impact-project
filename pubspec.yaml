@@ -12,7 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # pub-dev dependencies
-  flutter_gemma: ^0.9.0 # The most important dependency
+  flutter_gemma: ^0.10.0 # The most important dependency
 
   image_picker: ^1.0.4
   flutter_markdown: ^0.7.1
@@ -30,6 +30,7 @@ dependencies:
   provider: ^6.1.5
   freezed: ^3.2.0
   freezed_annotation: ^3.1.0
+  fuzzywuzzy: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -46,6 +47,7 @@ flutter:
     - assets/gemma/
     - assets/data/first_aid_categories.json
     - assets/data/listing.json
+    - assets/data/knowledge_graph.json
     - assets/data/pdf.json
     - assets/pdf/
 
